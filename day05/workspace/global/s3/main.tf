@@ -3,10 +3,7 @@ provider "aws" {
 }
 
 
-resource "aws_instance" "example" {
-ami = "ami-0fb653ca2d3203ac1"
-instance_type = "t2.micro"
-    }
+
 # Create an S3 bucket for Terraform state storage
 resource "aws_s3_bucket" "terraform_state" {
   bucket = "terraform-bsm-my-state"
@@ -66,11 +63,3 @@ terraform {
   }
 }
 
-output "s3_bucket_arn" {
-  value       = aws_s3_bucket.terraform_state.arn
-  description = "The ARN of the S3 bucket"
-}
-output "dynamodb_table_name" {
-  value       = aws_dynamodb_table.terraform_locks.name
-  description = "The name of the DynamoDB table"
-}
