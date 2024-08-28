@@ -61,14 +61,16 @@ resource "aws_autoscaling_group" "example" {
 
   tag {
     key                 = "Name"
-    value               = "terraform-asg-example"
+    value               = var.cluster_name
     propagate_at_launch = true
   }
 }
 
 # Security Group Resources
 resource "aws_security_group" "instance" {
-  name = random_pet.sg_instance_name.id
+  # name = random_pet.sg_instance_name.id
+name = "${var.cluster_name}-instance"
+
 
   ingress {
     from_port   = 8080
@@ -79,7 +81,9 @@ resource "aws_security_group" "instance" {
 }
 
 resource "aws_security_group" "alb" {
-  name = random_pet.sg_alb_name.id
+  # name = random_pet.sg_alb_name.id
+name = "${var.cluster_name}-alb"
+
 
   ingress {
     from_port   = 80
@@ -98,7 +102,7 @@ resource "aws_security_group" "alb" {
 
 # Load Balancer Resources
 resource "aws_lb" "example" {
-  name               = random_pet.lb_name.id
+  name               = var.cluster_name
   load_balancer_type = "application"
   subnets            = data.aws_subnets.default.ids
   security_groups    = [aws_security_group.alb.id]
@@ -155,8 +159,11 @@ resource "aws_lb_listener_rule" "asg" {
 data "terraform_remote_state" "db" {
       backend = "s3"
       config = {
-        bucket = "terraform-bsm-my-state"
-        key    = "stage/data-stores/mysql/terraform.tfstate"
+        # bucket = "terraform-bsm-my-state"
+        # key    = "stage/data-stores/mysql/terraform.tfstate"
+
+        bucket = var.db_remote_state_bucket
+        key    = var.db_remote_state_key
         region = "us-east-2"
 } 
 }
