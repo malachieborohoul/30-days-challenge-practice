@@ -36,7 +36,7 @@ resource "random_pet" "tg_name" {
 # EC2 and Auto Scaling Resources
 resource "aws_launch_configuration" "example" {
   image_id        = "ami-0b0ea68c435eb488d"
-  instance_type   = "t2.micro"
+  instance_type   = var.instance_type
   security_groups = [aws_security_group.instance.id]
 
  # Render the User Data script as a template
@@ -56,8 +56,8 @@ resource "aws_autoscaling_group" "example" {
   vpc_zone_identifier  = data.aws_subnets.default.ids
   target_group_arns    = [aws_lb_target_group.asg.arn]
   health_check_type    = "ELB"
-  min_size             = 2
-  max_size             = 10
+  min_size             = var.min_size
+  max_size             = var.max_size
 
   tag {
     key                 = "Name"
@@ -75,8 +75,8 @@ name = "${var.cluster_name}-instance"
   ingress {
     from_port   = 8080
     to_port     = 8080
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    protocol    = local.tcp_protocol
+    cidr_blocks = local.all_ips
   }
 }
 
@@ -86,17 +86,17 @@ name = "${var.cluster_name}-alb"
 
 
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = local.http_port
+    to_port     = local.http_port
+    protocol    = local.tcp_protocol
+    cidr_blocks = local.all_ips
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port   = local.any_port
+    to_port     = local.any_port
+    protocol    = local.any_protocol
+    cidr_blocks = local.all_ips
   }
 }
 
@@ -110,7 +110,7 @@ resource "aws_lb" "example" {
 
 resource "aws_lb_listener" "http" {
   load_balancer_arn = aws_lb.example.arn
-  port              = 80
+  port              = local.http_port
   protocol          = "HTTP"
 
   default_action {
