@@ -10,7 +10,7 @@ variable "instance_type" {
   type = string
 }
 
-variable "instance_name" {
+variable "asg_name" {
   description = "The name use for the instance"
   type = string
 }

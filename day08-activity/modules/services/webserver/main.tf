@@ -17,7 +17,7 @@ resource "aws_instance" "example" {
 
 
 resource "aws_security_group" "instance" {
-  name = var.instance_name
+  name = var.asg_name
 
   ingress {
 
