@@ -4,33 +4,25 @@ provider "aws" {
 }
 
 module "webserver_cluster" {
-  source = "../../../modules/services/webserver-cluster"
+  source                 = "../../../modules/services/webserver-cluster"
   cluster_name           = "webservers-prod"
   db_remote_state_bucket = "terraform-bsm-my-state"
   db_remote_state_key    = "prod/data-stores/mysql/terraform.tfstate"
 
   instance_type = "m4.large"
-  min_size = 2
-  max_size = 10
+  min_size      = 2
+  max_size      = 10
 }
 
-resource "aws_security_group_rule" "allow_http_inbound" {
-  type              = "ingress"
-  security_group_id = aws_security_group.alb.id
-  from_port         = 12345
-  to_port           = 12345
-  protocol          = "tcp"
-  cidr_blocks       = ["0.0.0.0/0"]
 
-}
 
 
 resource "aws_autoscaling_schedule" "scale_out_during_business_hours" {
-  scheduled_action_name = "scale_out_during_business_hours"
-  min_size = 2
-  max_size = 10
-  desired_capacity = 10
-  recurrence = "0 9 * * *"
+  scheduled_action_name  = "scale_out_during_business_hours"
+  min_size               = 2
+  max_size               = 10
+  desired_capacity       = 10
+  recurrence             = "0 9 * * *"
   autoscaling_group_name = module.webserver_cluster.asg_name
 }
 
